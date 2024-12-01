@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"math"
 	"os"
@@ -10,20 +11,18 @@ import (
 )
 
 func main() {
-	content, err := os.ReadFile("input.txt")
+	file, err := os.Open("input.txt")
 	if err != nil {
 		fmt.Println("Erorr while reading the input file, ", err)
 		return
 	}
+	defer file.Close()
 
-	lines := strings.Split(string(content), "\n")
-	similarityScoreMap := make(map[int]int)
 	var left, right []int
 
-	for _, line := range lines {
-		lineSplitted := strings.Split(line, " ")
-		fmt.Println(lineSplitted)
-
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		lineSplitted := strings.Split(scanner.Text(), " ")
 		leftNumb, err := strconv.Atoi(lineSplitted[0])
 		if err != nil {
 			fmt.Println("Erorr while converting string to int (left), ", err)
@@ -40,31 +39,21 @@ func main() {
 	sort.Ints(left)
 	sort.Ints(right)
 
-	// Store left-side numbers to check the existence with the right side
-	for _, num := range left {
-		similarityScoreMap[num] = 0
-	}
-
 	resSum := 0
-	idx := 0
-	for idx < len(left) {
-		_, exists := similarityScoreMap[right[idx]]
-		if exists {
-			similarityScoreMap[right[idx]]++
-		}
+	similarityScoreMap := make(map[int]int)
 
+	for idx := range left {
+		similarityScoreMap[right[idx]]++
 		leftNum := float64(left[idx])
 		rightNum := float64(right[idx])
 		diff := math.Abs(leftNum - rightNum)
 		resSum += int(diff)
-		idx += 1
 	}
 
 	fmt.Println("resSum = ", resSum)
 	// Correct answer = 2000468
 
 	// PART 2 - calculate similarity score
-
 	similarityScore := 0
 	for key, val := range similarityScoreMap {
 		similarityScore += key * val
