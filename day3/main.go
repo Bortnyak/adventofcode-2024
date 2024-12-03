@@ -19,8 +19,23 @@ func main() {
 	contentStr := string(content)
 	matches := findMulPatterns(contentStr)
 	result := 0
+	flag := true
 
 	for _, match := range matches {
+		if match == "don't()" {
+			flag = false
+			continue
+		}
+
+		if match == "do()" {
+			flag = true
+			continue
+		}
+
+		if flag == false {
+			continue
+		}
+
 		result += getA(match) * getB(match)
 	}
 
@@ -28,7 +43,7 @@ func main() {
 }
 
 func findMulPatterns(input string) []string {
-	pattern := `mul\((\d+),(\d+)\)`
+	pattern := `mul\((\d+),(\d+)\)|do\(\)|don't\(\)`
 
 	re, err := regexp.Compile(pattern)
 	if err != nil {
